@@ -22,6 +22,9 @@ Pykerning Playground is a web application similar to the [Typst playground](http
 - **Split Pane Layout**: Resizable editor and preview panels
 - **Pre-loaded Fonts**: Includes Gentium Basic (Regular, Bold, Italic) and Roboto fonts
 
+## TODO
+ - [ ] Use [pyodide-pack](https://github.com/pyodide/pyodide-pack)
+
 ## Next steps
 
  - [ ] reflect on how to extend pykerning library to have a lot of fast feedback
