@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -11,13 +11,19 @@ interface PDFViewerProps {
 }
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
+  console.log('PDFViewer render - pdfData:', pdfData);
+  console.log('PDFViewer render - pdfData length:', pdfData?.length);
+  console.log('PDFViewer render - pdfData type:', pdfData?.constructor?.name);
+
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
 
   // Convert Uint8Array to format react-pdf expects
+  // Create a copy to prevent react-pdf from mutating the original
   const pdfFile = useMemo(() => {
-    return { data: pdfData };
+    console.log('Creating pdfFile memo with data length:', pdfData?.length);
+    return { data: new Uint8Array(pdfData) };
   }, [pdfData]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -31,6 +37,39 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
     console.error('PDF data length:', pdfData?.length);
     console.error('PDF data first bytes:', pdfData?.slice(0, 10));
   }
+
+  const downloadPDF = useCallback(() => {
+    console.log('Download button clicked');
+    console.log('PDF data:', pdfData);
+    console.log('PDF data length:', pdfData?.length);
+
+    try {
+      const blob = new Blob([pdfData], { type: 'application/pdf' });
+      console.log('Blob created:', blob);
+
+      const url = URL.createObjectURL(blob);
+      console.log('Object URL created:', url);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'pykerning-output.pdf';
+      link.style.display = 'none';
+
+      document.body.appendChild(link);
+      console.log('Link appended to body');
+
+      link.click();
+      console.log('Link clicked');
+
+      setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        console.log('Cleanup completed');
+      }, 100);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+    }
+  }, [pdfData]);
 
   return (
     <div style={{
@@ -110,6 +149,21 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
             +
           </button>
         </div>
+
+        <button
+          onClick={downloadPDF}
+          style={{
+            padding: '4px 12px',
+            background: '#4CAF50',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 500
+          }}
+        >
+          Download PDF
+        </button>
       </div>
 
       {/* PDF Display */}
