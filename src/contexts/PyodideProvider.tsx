@@ -113,21 +113,31 @@ ${code}
 
       await pyodide.runPythonAsync(wrappedCode);
 
-      // Try to read the PDF from a common output path
-      // The user's code should write to '/tmp/output.pdf' or similar
+      // Access the 'result' variable directly from Python
       let pdfBytes: Uint8Array;
 
       try {
-        pdfBytes = pyodide.FS.readFile('/tmp/output.pdf');
-        console.log('PDF read from filesystem, size:', pdfBytes.length, 'bytes');
+        const result = pyodide.globals.get('result');
+        if (!result) {
+          return {
+            success: false,
+            error: {
+              message: 'No PDF output found. Make sure your code has a "result" variable with the PDF bytes',
+              type: 'OutputError'
+            }
+          };
+        }
+
+        // Convert Python bytes to JavaScript Uint8Array
+        pdfBytes = result.toJs();
+        console.log('PDF accessed from result variable, size:', pdfBytes.length, 'bytes');
         console.log('PDF header:', pdfBytes.slice(0, 10));
       } catch (e) {
-        // If reading from /tmp fails, return an error
-        console.error('Failed to read PDF from /tmp/output.pdf:', e);
+        console.error('Failed to access result variable:', e);
         return {
           success: false,
           error: {
-            message: 'No PDF output found. Make sure your code writes to "/tmp/output.pdf"',
+            message: 'Failed to access PDF result. Make sure your code sets a "result" variable with the PDF bytes',
             type: 'OutputError'
           }
         };
