@@ -64,13 +64,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto' }}>
+    <div style={{ height: '100%', overflow: 'auto', textAlign: 'left' }}>
       <CodeMirror
         value={code}
         height="100%"
         extensions={extensions}
         onChange={(value) => onChange(value)}
         theme="light"
+        style={{ textAlign: 'left' }}
         basicSetup={{
           lineNumbers: true,
           highlightActiveLineGutter: true,
