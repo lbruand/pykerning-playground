@@ -25,8 +25,6 @@ writer.set_font(font)
 writer.draw_text(20, 20, 'Hello, pykerning!')
 
 result = writer.close()
-#with open("/tmp/output.pdf", "wb") as fp:
-#  fp.write(result)
 `;
 
 export interface PlaygroundState {
