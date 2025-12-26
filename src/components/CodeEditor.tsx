@@ -53,7 +53,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#f5f5f5'
+        background: '#282c34',
+        color: '#abb2bf'
       }}>
         <div>
           <h3>Loading Pyodide and pykerning...</h3>
@@ -64,14 +65,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   }
 
   return (
-    <div style={{ height: '100%', overflow: 'auto', textAlign: 'left' }}>
+    <div style={{ height: '100%', overflow: 'hidden', textAlign: 'left' }}>
       <CodeMirror
         value={code}
         height="100%"
         extensions={extensions}
         onChange={(value) => onChange(value)}
-        theme="light"
-        style={{ textAlign: 'left' }}
+        theme="dark"
+        style={{ height: '100%' }}
         basicSetup={{
           lineNumbers: true,
           highlightActiveLineGutter: true,
