@@ -5,25 +5,32 @@ import PreviewPane from './PreviewPane';
 
 const DEFAULT_CODE = `
 import micropip
+await micropip.install(
+    "https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.2.0-py3-none-any.whl"
+)
+import io
+from pykerning.writer_fpdf import FpdfWriter
+
+# Create PDF writer (writing to virtual filesystem)
+writer = FpdfWriter(None, 210, 297)  # A4 size
+
+# Load font
+writer.load_font('/fonts/GenBasB.ttf')
+writer.load_font('/fonts/GenBasI.ttf')
+writer.load_font('/fonts/GenBasR.ttf')
+
+# Simple text rendering
+fonts = writer.get_fonts([
+        ('title', 'Gentium Basic', 'Regular', 30),
+        ('italic', 'Gentium Basic', 'Italic', 12),
+        ('roman', 'Gentium Basic', 'Regular', 12),
+    ])
+font = fonts['roman']
+writer.set_font(font)
+writer.text(20, 20, 'Hello, pykerning!')
+
+result = writer.close()
 `;
-// await micropip.install(
-//     "https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.1.0-py3-none-any.whl"
-// )
-// import io
-// from pykerning.fpdf_writer import FpdfWriter
-//
-// # Create PDF writer (writing to virtual filesystem)
-// writer = FpdfWriter('/tmp/output.pdf', 210, 297)  # A4 size
-//
-// # Load font
-// writer.load_font('/fonts/Roboto-Regular.ttf')
-//
-// # Simple text rendering
-// writer.set_font('Roboto', '', 12)
-// writer.text(20, 20, 'Hello, pykerning!')
-//
-// writer.close()
-// `;
 
 export interface PlaygroundState {
   code: string;

@@ -44,7 +44,7 @@ export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) =>
 
         // Install pykerning from GitHub-hosted wheel
         await micropip.install(
-          'https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.1.0-py3-none-any.whl'
+          'https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.2.0-py3-none-any.whl'
         );
 
         // Set up virtual filesystem for fonts
@@ -55,15 +55,24 @@ export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) =>
           console.log('Fonts directory already exists or error creating it:', e);
         }
 
-        // Load and mount font files
-        try {
-          const fontResponse = await fetch('/fonts/Roboto-Regular.ttf');
-          const fontBuffer = await fontResponse.arrayBuffer();
-          const fontData = new Uint8Array(fontBuffer);
-          pyodideInstance.FS.writeFile('/fonts/Roboto-Regular.ttf', fontData);
-          console.log('Font loaded successfully');
-        } catch (e) {
-          console.error('Failed to load font:', e);
+        // Load and mount all font files from public/fonts
+        const fontFiles = [
+          'GenBasB.ttf',
+          'GenBasI.ttf',
+          'GenBasR.ttf',
+          'Roboto-Regular.ttf'
+        ];
+
+        for (const fontFile of fontFiles) {
+          try {
+            const fontResponse = await fetch(`/fonts/${fontFile}`);
+            const fontBuffer = await fontResponse.arrayBuffer();
+            const fontData = new Uint8Array(fontBuffer);
+            pyodideInstance.FS.writeFile(`/fonts/${fontFile}`, fontData);
+            console.log(`Font loaded successfully: ${fontFile}`);
+          } catch (e) {
+            console.error(`Failed to load font ${fontFile}:`, e);
+          }
         }
 
         setPyodide(pyodideInstance);
