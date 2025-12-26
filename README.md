@@ -22,6 +22,14 @@ Pykerning Playground is a web application similar to the [Typst playground](http
 - **Split Pane Layout**: Resizable editor and preview panels
 - **Pre-loaded Fonts**: Includes Gentium Basic (Regular, Bold, Italic) and Roboto fonts
 
+## Next steps
+
+ - [ ] reflect on how to extend pykerning library to have a lot of fast feedback
+ - [ ] explore what the usual typesetting workflow. Starting from a text in the beginning
+ - [ ] how can we introduce GenAI to make better/cheaper typesetting
+ - [ ] it could be interesting to draw a sketch on the PDF canvas that would be used as input for VLm to modify the 
+       typesetting code. How can we make the typesetting code harder to break as well.
+
 ## Technology Stack
 
 - **Frontend**: React 19 + TypeScript
