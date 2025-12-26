@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -15,12 +15,29 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Convert Uint8Array to format react-pdf expects
   // Create a copy to prevent react-pdf from mutating the original
   const pdfFile = useMemo(() => {
     return { data: new Uint8Array(pdfData) };
   }, [pdfData]);
+
+  // Update container width on mount and resize
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        // Subtract padding (20px * 2 = 40px)
+        const width = containerRef.current.clientWidth - 40;
+        setContainerWidth(width);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     console.log('PDF loaded successfully, pages:', numPages);
@@ -149,13 +166,16 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
       </div>
 
       {/* PDF Display */}
-      <div style={{
-        flex: 1,
-        overflow: 'auto',
-        display: 'flex',
-        justifyContent: 'center',
-        padding: '20px'
-      }}>
+      <div
+        ref={containerRef}
+        style={{
+          flex: 1,
+          overflow: 'auto',
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '20px'
+        }}
+      >
         <Document
           file={pdfFile}
           onLoadSuccess={onDocumentLoadSuccess}
@@ -169,7 +189,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
         >
           <Page
             pageNumber={pageNumber}
-            scale={scale}
+            width={containerWidth > 0 ? containerWidth * scale : undefined}
             renderTextLayer={false}
             renderAnnotationLayer={false}
           />
