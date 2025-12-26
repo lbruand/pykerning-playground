@@ -44,7 +44,7 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
     console.log('PDF data length:', pdfData?.length);
 
     try {
-      const blob = new Blob([pdfData], { type: 'application/pdf' });
+      const blob = new Blob([pdfData.slice()], { type: 'application/pdf' });
       console.log('Blob created:', blob);
 
       const url = URL.createObjectURL(blob);
