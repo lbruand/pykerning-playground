@@ -60,7 +60,6 @@ export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) =>
           'GenBasB.ttf',
           'GenBasI.ttf',
           'GenBasR.ttf',
-          'Roboto-Regular.ttf'
         ];
 
         for (const fontFile of fontFiles) {
