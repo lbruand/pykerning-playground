@@ -1,0 +1,162 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { PyodideInterface, ExecutionResult } from '../types/pyodide';
+
+interface PyodideContextValue {
+  pyodide: PyodideInterface | null;
+  isLoading: boolean;
+  error: Error | null;
+  executePython: (code: string) => Promise<ExecutionResult>;
+}
+
+const PyodideContext = createContext<PyodideContextValue | undefined>(undefined);
+
+export const usePyodide = () => {
+  const context = useContext(PyodideContext);
+  if (!context) {
+    throw new Error('usePyodide must be used within PyodideProvider');
+  }
+  return context;
+};
+
+interface PyodideProviderProps {
+  children: ReactNode;
+}
+
+export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) => {
+  const [pyodide, setPyodide] = useState<PyodideInterface | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function initPyodide() {
+      try {
+        setIsLoading(true);
+
+        // Load Pyodide from CDN
+        const pyodideInstance = await window.loadPyodide({
+          indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.0/full/'
+        });
+
+        // Load micropip for package installation
+        await pyodideInstance.loadPackage('micropip');
+        const micropip = pyodideInstance.pyimport('micropip');
+
+        // Install pykerning from GitHub-hosted wheel
+        await micropip.install(
+          'https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.1.0-py3-none-any.whl'
+        );
+
+        // Set up virtual filesystem for fonts
+        try {
+          pyodideInstance.FS.mkdir('/fonts');
+        } catch (e) {
+          // Directory might already exist
+          console.log('Fonts directory already exists or error creating it:', e);
+        }
+
+        // Load and mount font files
+        try {
+          const fontResponse = await fetch('/fonts/Roboto-Regular.ttf');
+          const fontBuffer = await fontResponse.arrayBuffer();
+          const fontData = new Uint8Array(fontBuffer);
+          pyodideInstance.FS.writeFile('/fonts/Roboto-Regular.ttf', fontData);
+          console.log('Font loaded successfully');
+        } catch (e) {
+          console.error('Failed to load font:', e);
+        }
+
+        setPyodide(pyodideInstance);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Failed to initialize Pyodide:', err);
+        setError(err instanceof Error ? err : new Error(String(err)));
+        setIsLoading(false);
+      }
+    }
+
+    initPyodide();
+  }, []);
+
+  const executePython = async (code: string): Promise<ExecutionResult> => {
+    if (!pyodide) {
+      return {
+        success: false,
+        error: {
+          message: 'Pyodide is not initialized',
+          type: 'SystemError'
+        }
+      };
+    }
+
+    try {
+      // Wrap user code to capture PDF output
+      // We'll use Pyodide's virtual filesystem approach since BytesIO support is uncertain
+      const wrappedCode = `
+import io
+import sys
+
+# User code
+${code}
+
+# The user code should have created a FpdfWriter and called close()
+# We'll read the PDF from the virtual filesystem if it was written to a file
+`;
+
+      await pyodide.runPythonAsync(wrappedCode);
+
+      // Try to read the PDF from a common output path
+      // The user's code should write to '/tmp/output.pdf' or similar
+      let pdfBytes: Uint8Array;
+
+      try {
+        pdfBytes = pyodide.FS.readFile('/tmp/output.pdf');
+      } catch (e) {
+        // If reading from /tmp fails, return an error
+        return {
+          success: false,
+          error: {
+            message: 'No PDF output found. Make sure your code writes to "/tmp/output.pdf"',
+            type: 'OutputError'
+          }
+        };
+      }
+
+      return {
+        success: true,
+        data: pdfBytes
+      };
+    } catch (err: any) {
+      // Parse Python error
+      const errorMessage = err.message || String(err);
+      const traceback = err.stack || '';
+
+      // Try to extract line number from traceback
+      const lineMatch = traceback.match(/line (\d+)/);
+      const lineNumber = lineMatch ? parseInt(lineMatch[1], 10) : undefined;
+
+      return {
+        success: false,
+        error: {
+          message: errorMessage,
+          type: err.name || 'PythonError',
+          lineNumber,
+          traceback
+        }
+      };
+    }
+  };
+
+  const value: PyodideContextValue = {
+    pyodide,
+    isLoading,
+    error,
+    executePython
+  };
+
+  return (
+    <PyodideContext.Provider value={value}>
+      {children}
+    </PyodideContext.Provider>
+  );
+};

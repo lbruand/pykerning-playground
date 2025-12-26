@@ -1,0 +1,143 @@
+import React, { useState, useMemo } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+// Set up the worker
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+interface PDFViewerProps {
+  pdfData: Uint8Array;
+}
+
+const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
+  const [numPages, setNumPages] = useState<number>(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [scale, setScale] = useState(1.0);
+
+  // Convert Uint8Array to format react-pdf expects
+  const pdfFile = useMemo(() => {
+    return { data: pdfData };
+  }, [pdfData]);
+
+  function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    setNumPages(numPages);
+    setPageNumber(1);
+  }
+
+  function onDocumentLoadError(error: Error) {
+    console.error('Error loading PDF:', error);
+  }
+
+  return (
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      background: '#525659'
+    }}>
+      {/* Toolbar */}
+      <div style={{
+        padding: '8px 16px',
+        background: '#323639',
+        color: '#fff',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        borderBottom: '1px solid #222'
+      }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={() => setPageNumber(Math.max(1, pageNumber - 1))}
+            disabled={pageNumber <= 1}
+            style={{
+              padding: '4px 12px',
+              background: pageNumber <= 1 ? '#555' : '#fff',
+              color: pageNumber <= 1 ? '#999' : '#000',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: pageNumber <= 1 ? 'not-allowed' : 'pointer'
+            }}
+          >
+            Previous
+          </button>
+          <span>
+            Page {pageNumber} of {numPages}
+          </span>
+          <button
+            onClick={() => setPageNumber(Math.min(numPages, pageNumber + 1))}
+            disabled={pageNumber >= numPages}
+            style={{
+              padding: '4px 12px',
+              background: pageNumber >= numPages ? '#555' : '#fff',
+              color: pageNumber >= numPages ? '#999' : '#000',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: pageNumber >= numPages ? 'not-allowed' : 'pointer'
+            }}
+          >
+            Next
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={() => setScale(Math.max(0.5, scale - 0.1))}
+            style={{
+              padding: '4px 12px',
+              background: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            -
+          </button>
+          <span>{Math.round(scale * 100)}%</span>
+          <button
+            onClick={() => setScale(Math.min(3, scale + 0.1))}
+            style={{
+              padding: '4px 12px',
+              background: '#fff',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* PDF Display */}
+      <div style={{
+        flex: 1,
+        overflow: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '20px'
+      }}>
+        <Document
+          file={pdfFile}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onLoadError={onDocumentLoadError}
+          loading={
+            <div style={{ color: '#fff' }}>Loading PDF...</div>
+          }
+          error={
+            <div style={{ color: '#fc8181' }}>Failed to load PDF</div>
+          }
+        >
+          <Page
+            pageNumber={pageNumber}
+            scale={scale}
+            renderTextLayer={false}
+            renderAnnotationLayer={false}
+          />
+        </Document>
+      </div>
+    </div>
+  );
+};
+
+export default PDFViewer;

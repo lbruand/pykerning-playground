@@ -10,8 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.0",
+    "@codemirror/lang-python": "^6.2.1",
+    "@codemirror/lint": "^6.9.2",
+    "@uiw/react-codemirror": "^4.25.4",
+    "pdfjs-dist": "^5.4.449",
+    "pyodide": "^0.29.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-pdf": "^10.2.0",
+    "react-resizable-panels": "^4.0.15",
+    "use-debounce": "^10.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
