@@ -4,6 +4,23 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' https://cdn.jsdelivr.net 'unsafe-eval';
+        script-src-elem 'self' https://cdn.jsdelivr.net;
+        worker-src 'self' blob:;
+        connect-src 'self' https://cdn.jsdelivr.net https://files.pythonhosted.org https://pypi.org;
+        style-src 'self' 'unsafe-inline';
+        font-src 'self';
+        img-src 'self' data: blob:;
+        object-src 'none';
+        base-uri 'self';
+        form-action 'none';
+        frame-ancestors 'none';
+      "
+    />
     <title>pykerning-playground</title>
     <script
       src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"

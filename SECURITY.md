@@ -29,6 +29,51 @@ The following resources are loaded dynamically and **cannot use SRI** (this is a
    - URL: `https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.2.0-py3-none-any.whl`
    - Mitigation: Using jsDelivr CDN with specific version (0.2.0)
 
+## Content Security Policy (CSP)
+
+A strict Content Security Policy is enforced via meta tag in `index.html`. The policy restricts resource loading to prevent XSS and code injection attacks.
+
+### CSP Directives
+
+| Directive | Allowed Sources | Reason |
+|-----------|----------------|--------|
+| `default-src` | `'self'` | Only allow resources from same origin by default |
+| `script-src` | `'self'` `https://cdn.jsdelivr.net` `'unsafe-eval'` | Our scripts, Pyodide from CDN, and eval required by Pyodide |
+| `script-src-elem` | `'self'` `https://cdn.jsdelivr.net` | Script elements from our domain and CDN |
+| `worker-src` | `'self'` `blob:` | PDF.js worker and blob URLs for inline workers |
+| `connect-src` | `'self'` `https://cdn.jsdelivr.net` `https://files.pythonhosted.org` `https://pypi.org` | Fetch/XHR to our domain, CDN, and PyPI for Python packages |
+| `style-src` | `'self'` `'unsafe-inline'` | Our styles and React inline styles |
+| `font-src` | `'self'` | Only bundled fonts from our domain |
+| `img-src` | `'self'` `data:` `blob:` | Images from our domain, data URIs, and blobs |
+| `object-src` | `'none'` | No plugins (Flash, Java, etc.) allowed |
+| `base-uri` | `'self'` | Prevent base tag hijacking |
+| `form-action` | `'none'` | No form submissions (not used) |
+| `frame-ancestors` | `'none'` | Prevent clickjacking (no iframing) |
+
+### CSP Exceptions
+
+Two directives require relaxed restrictions:
+
+1. **`'unsafe-eval'` in script-src**
+   - Required by Pyodide to execute Python code dynamically
+   - This is the core functionality of the playground
+   - Risk is mitigated by Pyodide's WebAssembly sandbox
+
+2. **`'unsafe-inline'` in style-src**
+   - Required by React for inline styles
+   - Limited to CSS injection, not JavaScript execution
+
+### Testing CSP Violations
+
+The browser console will show CSP violations if any resources are blocked. To test:
+
+1. Open browser DevTools Console
+2. Use the playground normally
+3. Look for messages starting with "Content Security Policy"
+4. Report any violations as they may indicate:
+   - A legitimate resource being blocked (CSP too strict)
+   - An attempted security breach (CSP working correctly)
+
 ## Security Model
 
 This is a **client-side code playground** similar to JSFiddle, CodePen, or the Typst playground:
