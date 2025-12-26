@@ -98,20 +98,9 @@ export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) =>
     }
 
     try {
-      // Wrap user code to capture PDF output
-      // We'll use Pyodide's virtual filesystem approach since BytesIO support is uncertain
-      const wrappedCode = `
-import io
-import sys
-
-# User code
-${code}
-
-# The user code should have created a FpdfWriter and called close()
-# We'll read the PDF from the virtual filesystem if it was written to a file
-`;
-
-      await pyodide.runPythonAsync(wrappedCode);
+      // Execute user code directly without template literal interpolation
+      // to prevent JavaScript template injection attacks
+      await pyodide.runPythonAsync(code);
 
       // Access the 'result' variable directly from Python
       let pdfBytes: Uint8Array;
@@ -130,8 +119,6 @@ ${code}
 
         // Convert Python bytes to JavaScript Uint8Array
         pdfBytes = result.toJs();
-        console.log('PDF accessed from result variable, size:', pdfBytes.length, 'bytes');
-        console.log('PDF header:', pdfBytes.slice(0, 10));
       } catch (e) {
         console.error('Failed to access result variable:', e);
         return {

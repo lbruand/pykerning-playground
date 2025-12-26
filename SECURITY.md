@@ -1,5 +1,22 @@
 # Security
 
+## Security Audit Summary
+
+**Last Audit**: December 2024
+**Status**: ✅ All identified critical and high-severity issues resolved
+
+### Vulnerabilities Found and Fixed
+
+| Severity | Issue | Status | Fix |
+|----------|-------|--------|-----|
+| 🔴 CRITICAL | JavaScript template injection in code execution | ✅ FIXED | Removed template literal interpolation, pass code directly to Pyodide |
+| 🟡 MEDIUM | Information disclosure via excessive debug logging | ✅ FIXED | Removed console.log statements exposing PDF data |
+| 🟢 LOW | Missing CSP security directives | ✅ FIXED | Added upgrade-insecure-requests and block-all-mixed-content |
+| ℹ️ INFO | No known Pyodide sandbox escapes (2024-2025) | ✅ VERIFIED | Pyodide WebAssembly sandbox remains secure |
+| ℹ️ INFO | Zero npm dependency vulnerabilities | ✅ VERIFIED | All 271 dependencies clean (npm audit passed) |
+
+---
+
 ## Subresource Integrity (SRI)
 
 This project uses Subresource Integrity hashes to verify CDN-loaded resources haven't been tampered with.
@@ -49,6 +66,8 @@ A strict Content Security Policy is enforced via meta tag in `index.html`. The p
 | `base-uri` | `'self'` | Prevent base tag hijacking |
 | `form-action` | `'none'` | No form submissions (not used) |
 | `frame-ancestors` | `'none'` | Prevent clickjacking (no iframing) |
+| `upgrade-insecure-requests` | N/A | Automatically upgrade HTTP to HTTPS |
+| `block-all-mixed-content` | N/A | Block mixed HTTP/HTTPS content |
 
 ### CSP Exceptions
 

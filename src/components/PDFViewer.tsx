@@ -12,10 +12,6 @@ interface PDFViewerProps {
 }
 
 const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
-  console.log('PDFViewer render - pdfData:', pdfData);
-  console.log('PDFViewer render - pdfData length:', pdfData?.length);
-  console.log('PDFViewer render - pdfData type:', pdfData?.constructor?.name);
-
   const [numPages, setNumPages] = useState<number>(0);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
@@ -23,7 +19,6 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
   // Convert Uint8Array to format react-pdf expects
   // Create a copy to prevent react-pdf from mutating the original
   const pdfFile = useMemo(() => {
-    console.log('Creating pdfFile memo with data length:', pdfData?.length);
     return { data: new Uint8Array(pdfData) };
   }, [pdfData]);
 
@@ -35,37 +30,23 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
 
   function onDocumentLoadError(error: Error) {
     console.error('Error loading PDF:', error);
-    console.error('PDF data length:', pdfData?.length);
-    console.error('PDF data first bytes:', pdfData?.slice(0, 10));
   }
 
   const downloadPDF = useCallback(() => {
-    console.log('Download button clicked');
-    console.log('PDF data:', pdfData);
-    console.log('PDF data length:', pdfData?.length);
-
     try {
       const blob = new Blob([pdfData.slice()], { type: 'application/pdf' });
-      console.log('Blob created:', blob);
-
       const url = URL.createObjectURL(blob);
-      console.log('Object URL created:', url);
-
       const link = document.createElement('a');
       link.href = url;
       link.download = 'pykerning-output.pdf';
       link.style.display = 'none';
 
       document.body.appendChild(link);
-      console.log('Link appended to body');
-
       link.click();
-      console.log('Link clicked');
 
       setTimeout(() => {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        console.log('Cleanup completed');
       }, 100);
     } catch (error) {
       console.error('Error downloading PDF:', error);

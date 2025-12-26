@@ -54,21 +54,14 @@ const PlaygroundContainer: React.FC = () => {
   }, []);
 
   const handleExecutionSuccess = useCallback((pdfData: Uint8Array) => {
-    console.log('PlaygroundContainer - handleExecutionSuccess called with pdfData:', pdfData);
-    console.log('PlaygroundContainer - pdfData length:', pdfData?.length);
     setIsExecuting(false);
     setOutput({ type: 'pdf', data: pdfData });
-    console.log('PlaygroundContainer - output state updated');
   }, []);
 
   const handleExecutionError = useCallback((errorMessage: string) => {
     setIsExecuting(false);
     setOutput({ type: 'error', data: errorMessage });
   }, []);
-
-  console.log('PlaygroundContainer render - output:', output);
-  console.log('PlaygroundContainer render - output.type:', output.type);
-  console.log('PlaygroundContainer render - output.data length:', (output.data as any)?.length);
 
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
