@@ -64,7 +64,7 @@ export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) =>
 
         for (const fontFile of fontFiles) {
           try {
-            const fontResponse = await fetch(`/fonts/${fontFile}`);
+            const fontResponse = await fetch(`./fonts/${fontFile}`);
             const fontBuffer = await fontResponse.arrayBuffer();
             const fontData = new Uint8Array(fontBuffer);
             pyodideInstance.FS.writeFile(`/fonts/${fontFile}`, fontData);
