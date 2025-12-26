@@ -65,7 +65,7 @@ const PlaygroundContainer: React.FC = () => {
 
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <Group orientation="horizontal">
+      <Group orientation="horizontal" style={{ height: '100%', width: '100%' }}>
         <Panel defaultSize={50} minSize={30}>
           <CodeEditor
             code={code}

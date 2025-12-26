@@ -4,9 +4,11 @@ import './App.css'
 
 function App() {
   return (
-    <PyodideProvider>
-      <PlaygroundContainer />
-    </PyodideProvider>
+    <div style={{ height: '100%', width: '100%' }}>
+      <PyodideProvider>
+        <PlaygroundContainer />
+      </PyodideProvider>
+    </div>
   )
 }
 
