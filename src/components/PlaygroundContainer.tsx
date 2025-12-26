@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Panel, Group, Separator } from 'react-resizable-panels';
 import CodeEditor from './CodeEditor';
 import PreviewPane from './PreviewPane';
@@ -36,24 +36,24 @@ const PlaygroundContainer: React.FC = () => {
   });
   const [isExecuting, setIsExecuting] = useState(false);
 
-  const handleCodeChange = (newCode: string) => {
+  const handleCodeChange = useCallback((newCode: string) => {
     setCode(newCode);
-  };
+  }, []);
 
-  const handleExecutionStart = () => {
+  const handleExecutionStart = useCallback(() => {
     setIsExecuting(true);
     setOutput({ type: 'loading', data: null });
-  };
+  }, []);
 
-  const handleExecutionSuccess = (pdfData: Uint8Array) => {
+  const handleExecutionSuccess = useCallback((pdfData: Uint8Array) => {
     setIsExecuting(false);
     setOutput({ type: 'pdf', data: pdfData });
-  };
+  }, []);
 
-  const handleExecutionError = (errorMessage: string) => {
+  const handleExecutionError = useCallback((errorMessage: string) => {
     setIsExecuting(false);
     setOutput({ type: 'error', data: errorMessage });
-  };
+  }, []);
 
   return (
     <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>

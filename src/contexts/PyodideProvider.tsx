@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { PyodideInterface, ExecutionResult } from '../types/pyodide';
 
@@ -78,7 +78,7 @@ export const PyodideProvider: React.FC<PyodideProviderProps> = ({ children }) =>
     initPyodide();
   }, []);
 
-  const executePython = async (code: string): Promise<ExecutionResult> => {
+  const executePython = useCallback(async (code: string): Promise<ExecutionResult> => {
     if (!pyodide) {
       return {
         success: false,
@@ -111,7 +111,7 @@ ${code}
 
       try {
         pdfBytes = pyodide.FS.readFile('/tmp/output.pdf');
-      } catch (e) {
+      } catch {
         // If reading from /tmp fails, return an error
         return {
           success: false,
@@ -145,7 +145,7 @@ ${code}
         }
       };
     }
-  };
+  }, [pyodide]);
 
   const value: PyodideContextValue = {
     pyodide,
