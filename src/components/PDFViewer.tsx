@@ -3,8 +3,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-// Set up the worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// Set up the worker using jsdelivr CDN with correct MIME type
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface PDFViewerProps {
   pdfData: Uint8Array;
@@ -21,12 +21,15 @@ const PDFViewer: React.FC<PDFViewerProps> = ({ pdfData }) => {
   }, [pdfData]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
+    console.log('PDF loaded successfully, pages:', numPages);
     setNumPages(numPages);
     setPageNumber(1);
   }
 
   function onDocumentLoadError(error: Error) {
     console.error('Error loading PDF:', error);
+    console.error('PDF data length:', pdfData?.length);
+    console.error('PDF data first bytes:', pdfData?.slice(0, 10));
   }
 
   return (

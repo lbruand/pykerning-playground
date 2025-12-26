@@ -120,8 +120,11 @@ ${code}
 
       try {
         pdfBytes = pyodide.FS.readFile('/tmp/output.pdf');
-      } catch {
+        console.log('PDF read from filesystem, size:', pdfBytes.length, 'bytes');
+        console.log('PDF header:', pdfBytes.slice(0, 10));
+      } catch (e) {
         // If reading from /tmp fails, return an error
+        console.error('Failed to read PDF from /tmp/output.pdf:', e);
         return {
           success: false,
           error: {

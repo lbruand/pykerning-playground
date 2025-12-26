@@ -4,10 +4,10 @@ import CodeEditor from './CodeEditor';
 import PreviewPane from './PreviewPane';
 
 const DEFAULT_CODE = `
-import micropip
-await micropip.install(
-    "https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.2.0-py3-none-any.whl"
-)
+#import micropip
+#await micropip.install(
+#    "https://cdn.jsdelivr.net/gh/lbruand/pykerning@main/dist/pykerning-0.2.0-py3-none-any.whl"
+#)
 import io
 from pykerning.writer_fpdf import FpdfWriter
 
@@ -27,9 +27,11 @@ fonts = writer.get_fonts([
     ])
 font = fonts['roman']
 writer.set_font(font)
-writer.text(20, 20, 'Hello, pykerning!')
+writer.draw_text(20, 20, 'Hello, pykerning!')
 
 result = writer.close()
+with open("/tmp/output.pdf", "wb") as fp:
+  fp.write(result)
 `;
 
 export interface PlaygroundState {
