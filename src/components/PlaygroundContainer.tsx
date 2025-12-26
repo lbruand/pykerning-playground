@@ -3,9 +3,8 @@ import { Panel, Group, Separator } from 'react-resizable-panels';
 import CodeEditor from './CodeEditor';
 import PreviewPane from './PreviewPane';
 
-const DEFAULT_CODE = `
-import io
-from pykerning.writer_fpdf import FpdfWriter
+const DEFAULT_CODE =
+`from pykerning.writer_fpdf import FpdfWriter
 
 # Create PDF writer (writing to virtual filesystem)
 writer = FpdfWriter(None, 210, 297)  # A4 size
